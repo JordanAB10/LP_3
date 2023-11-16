@@ -1,0 +1,109 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+df = pd.read_csv('uber.csv')
+df
+df.head()
+df.describe()
+df.info()
+
+
+# object mtlb string hai, isko hume convert karna hai -> datetime
+df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'])
+
+
+df.shape
+df.dtypes
+
+
+# find null values
+df.isnull().sum()
+
+
+# agar null values kam hai toh drop karna hai
+df.dropna(inplace=True)
+df.isnull().sum()
+
+df.shape
+df['pickup_datetime'] = pd.to_numeric(df['pickup_datetime'])
+df.drop('key', axis=1, inplace=True)
+
+df.dtypes
+# find correlation
+df.corr()
+
+
+# finding outliers
+plt.boxplot(df['fare_amount'])
+plt.show()
+
+
+# remove outliers
+q_low = df['fare_amount'].quantile(0.01)
+q_hi  = df['fare_amount'].quantile(0.99)
+df = df[(df['fare_amount'] < q_hi) & (df['fare_amount'] > q_low)]
+
+
+plt.boxplot(df['fare_amount'])
+plt.show()
+
+
+
+# Linear Regression
+from sklearn.model_selection import train_test_split
+
+x = df.drop('fare_amount', axis=1) #fare amount ko chodke sabko x mai daal diya
+y = df['fare_amount'] #fare amount is our target variable
+
+
+# jab bhi apan model apply karte hai, to apna data numeric format me rehna chahiye
+# pickup_datetime ABHI is in datetime -> convert it into numeric
+x['pickup_datetime'] = pd.to_numeric(pd.to_datetime(x['pickup_datetime']))
+x.info()
+
+
+# a = x.loc[:, x.columns.str.contains('^Unnamed')]
+
+# split the data into train and test
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+
+
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(x_train, y_train)
+
+
+# predict
+y_pred = model.predict(x_test)
+
+# evaluation of linear regression model
+from sklearn.metrics import mean_squared_error, r2_score
+
+mean_squared_error(y_test, y_pred)
+
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+rmse
+
+
+# Random Forest
+from sklearn.ensemble import RandomForestRegressor
+
+model = RandomForestRegressor(n_estimators=100, random_state=101)
+
+
+model.fit(x_train, y_train)
+
+y_pred_rf = model.predict(x_test)
+
+
+
+# calculate rmse for random forest
+rmse = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+print(rmse)
+
+r2Score = r2_score(y_test, y_pred_rf)
+print(r2Score)

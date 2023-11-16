@@ -1,0 +1,196 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OneHotEncoder
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.metrics import accuracy_score, confusion_matrix
+#data = pd.read_csv("Churn_Modelling.csv")
+data = pd.read_csv("/content/Churn_Modelling.csv.xls")
+print(data)
+
+X = data.drop(["Exited", "CustomerId"], axis=1)
+y = data["Exited"]
+label_encoder = LabelEncoder()
+X["Geography"] = label_encoder.fit_transform(X["Geography"])
+X["Gender"] = label_encoder.fit_transform(X["Gender"])
+X = X.apply(pd.to_numeric, errors='coerce') # Convert non-numeric to NaN errors='coerce'
+X = X.fillna(0)
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+model = Sequential()
+model.add(Dense(1, input_dim=X_train_scaled.shape[1], activation='sigmoid'))
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+y_pred = (model.predict(X_test_scaled) > 0.5).astype("int32")
+accuracy = accuracy_score(y_test, y_pred)
+confusion_mat = confusion_matrix(y_test, y_pred)
+print(f"Accuracy: {accuracy}")
+print("Confusion Matrix:")
+print(confusion_mat)

@@ -1,0 +1,92 @@
+import numpy as np
+import pandas as pd
+import sympy as sym
+import matplotlib.pyplot as plt
+# from matplotlib import pyplot
+#The main objective of using a gradient descent algorithm is to minimize the cost function using iteration.
+# To achieve this goal, it performs two steps iteratively:
+# Calculates the first-order derivative of the function to compute the gradient or slope of that fn
+# Move away from direction of gradient, slope increased from current point by alpha times, where Alpha is defined as Learning Rate.
+# Tuning parameter in optimization process helps decide length of steps.
+
+
+
+
+# Updates the weights using the following equation: w = w - learning_rate * gradient
+# The learning rate is a hyperparameter that controls how much to change the model in response to the estimated error each time the model weights are updated.
+# The lower the value, the slower the learning process and the longer it takes to converge.
+# The higher the value, the faster the learning process but the more likely it is to overshoot the optimal point.
+def objective(x):
+    return (x+3)**2
+
+
+
+
+
+def derivative(x):
+    return 2*(x+3)
+
+
+
+
+def gradient(alpha,start,max_iter):
+    x_list=[]
+    x=start
+    x_list.append(x)
+    precision = 0.000001
+    previous_step_size = 1
+    iters = 0
+    while previous_step_size > precision and iters < max_iter:
+        prev_x = x
+        gradi=derivative(x)
+        x=x-(alpha*gradi)
+        x_list.append(x)
+        previous_step_size = abs(prev_x - x)
+        iters += 1
+    # print(previous_step_size)
+    return x_list
+
+
+
+
+
+x=sym.symbols('x')
+expr=(x+3)**2.0
+grad=sym.Derivative(expr,x)
+print("{}".format(grad.doit()))
+grad.doit().subs(x,2)
+
+
+
+
+
+
+alpha=0.1
+start=2
+max_iter=1000
+
+
+
+
+
+x_cor=np.linspace(-15,15,100)
+plt.plot(x_cor,objective(x_cor))
+plt.plot(2,objective(2),'ro')
+#component of gradient descent
+#derivative of cost, incremental step, initial weight, gradient, minimum cost and Weight
+
+
+
+
+
+
+x = gradient(alpha, start, max_iter)
+x_cor = np.linspace(-5, 5, 100)
+plt.plot(x_cor, objective(x_cor))
+x_arr = np.array(x)
+plt.plot(x_arr, objective(x_arr), '.-', color='red')
+plt.show()
+
+
+
+print("Local Minima occurs at:",x[len(x)-1])
